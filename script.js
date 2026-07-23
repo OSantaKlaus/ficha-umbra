@@ -230,6 +230,7 @@ function calcularCA() {
 
     const el = g('ca-total')
     if (el) el.value = total
+    try { atualizarQuickStats() } catch(e) {}
 }
 
 /* ============================================================
@@ -571,11 +572,38 @@ function coletarTags(cid) {
 function carregarImagem(event) {
     const file = event.target.files[0]
     if (!file) return
+
     const reader = new FileReader()
     reader.onload = e => {
-        mostrarImagem(e.target.result)
-        ls.set('ficha-dnd-img', e.target.result)
+        const img = new Image()
+        img.onload = () => {
+            // Redimensiona para no máximo 640px no lado maior, evitando
+            // estourar o limite de armazenamento do navegador (localStorage)
+            // com fotos de celular que costumam vir muito grandes.
+            const MAX_LADO = 640
+            let w = img.width, h = img.height
+            if (w > MAX_LADO || h > MAX_LADO) {
+                if (w >= h) { h = Math.round(h * (MAX_LADO / w)); w = MAX_LADO }
+                else { w = Math.round(w * (MAX_LADO / h)); h = MAX_LADO }
+            }
+            const canvas = document.createElement('canvas')
+            canvas.width = w; canvas.height = h
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.82)
+
+            mostrarImagem(dataUrl)
+            try {
+                ls.set('ficha-dnd-img', dataUrl)
+                mostrarToast('✦ Imagem salva', 'sucesso', 2000)
+            } catch (err) {
+                console.warn('[imagem]', err)
+                mostrarToast('Não foi possível salvar a imagem (espaço insuficiente no navegador)', 'erro', 4500)
+            }
+        }
+        img.onerror = () => mostrarToast('Não foi possível ler essa imagem', 'erro', 3500)
+        img.src = e.target.result
     }
+    reader.onerror = () => mostrarToast('Não foi possível ler o arquivo', 'erro', 3500)
     reader.readAsDataURL(file)
 }
 

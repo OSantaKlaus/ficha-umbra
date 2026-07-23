@@ -52,6 +52,15 @@ document.addEventListener('change', e => {
         _autoSalvarDebounced()
 }, { passive: true })
 
+// Garante que a última alteração seja salva mesmo se o jogador sair da
+// página (ex: clicar em "Grupo") antes do debounce de 800ms disparar.
+function _flushSalvarPendente() {
+    try { salvar() } catch (e) {}
+}
+window.addEventListener('pagehide', _flushSalvarPendente)
+window.addEventListener('beforeunload', _flushSalvarPendente)
+document.getElementById('btn-voltar-grupo')?.addEventListener('click', _flushSalvarPendente)
+
 /* ────────────────────────────────────────────────────────────────
    3. UNDO / REDO
    – Stack em memória, máx 25 estados.
