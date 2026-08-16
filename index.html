@@ -343,6 +343,41 @@
       padding: 0.65rem 0.9rem; resize: vertical; min-height: 65px; transition: border-color 0.2s;
     }
     .wfield textarea:focus { outline: none; border-color: rgba(136,144,192,0.5); }
+
+    .w-alin-widget {
+      padding: .9rem 1rem 1.1rem; border: 1px solid rgba(136,144,192,0.22);
+      border-radius: 8px; background: rgba(255,255,255,0.04);
+    }
+    .w-alin-nome {
+      font-family: var(--font-head); font-size: .92rem; letter-spacing: .08em;
+      text-transform: uppercase; text-align: center; color: var(--gold-pale); margin-bottom: .8rem;
+    }
+    .w-alin-eixo { margin-bottom: .85rem; }
+    .w-alin-eixo:last-child { margin-bottom: 0; }
+    .w-alin-labels {
+      display: flex; justify-content: space-between; font-family: var(--font-head);
+      font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px;
+    }
+    .w-alin-leal, .w-alin-bom { color: var(--gold-pale); }
+    .w-alin-caotico, .w-alin-mau { color: var(--crimson); }
+    .w-alin-slider {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 5px;
+      border-radius: 3px; outline: none; cursor: pointer;
+      background: linear-gradient(90deg, var(--gold-pale), var(--ink-muted) 50%, var(--crimson));
+    }
+    .w-alin-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--dark-card); border: 2px solid var(--gold-pale);
+      box-shadow: 0 1px 4px rgba(0,0,0,.4); cursor: pointer; margin-top: -1px;
+    }
+    .w-alin-slider::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%; background: var(--dark-card);
+      border: 2px solid var(--gold-pale); box-shadow: 0 1px 4px rgba(0,0,0,.4); cursor: pointer;
+    }
+    .w-alin-slider::-moz-range-track { height: 5px; border-radius: 3px; background: transparent; }
+    .w-alin-track { position: relative; padding-bottom: 9px; }
+    .w-alin-ticks { position: absolute; left: 0; right: 0; top: 7px; display: flex; justify-content: space-between; pointer-events: none; }
+    .w-alin-ticks span { width: 2px; height: 6px; border-radius: 1px; background: rgba(136,144,192,0.35); }
     .wfield-hint { font-size: 0.68rem; font-style: italic; opacity: 0.55; font-family: var(--font-body); font-weight: 400; letter-spacing: 0; text-transform: none; }
     .wfield input[list]::placeholder { opacity: 0.45; font-style: italic; font-size: 0.9rem; }
 
@@ -508,19 +543,31 @@
             <option>Pirata</option><option>Sábio</option><option>Soldado</option>
             <option>Vagabundo</option><option>Custom (Homebrew)</option>
           </datalist>
-          <datalist id="dl-alinhamento">
-            <option>Leal Bom</option><option>Neutro Bom</option><option>Caótico Bom</option>
-            <option>Leal Neutro</option><option>Neutro Verdadeiro</option><option>Caótico Neutro</option>
-            <option>Leal Mau</option><option>Neutro Mau</option><option>Caótico Mau</option>
-            <option>Sem Alinhamento</option>
-          </datalist>
           <div class="wrow">
             <div class="wfield"><label>Classe <span class="wfield-hint">— digite ou escolha</span></label><input type="text" id="w-classe" list="dl-classe" placeholder="ex: Paladino, Ardido..." autocomplete="off" oninput="onClasseChange()"></div>
             <div class="wfield"><label>Raça <span class="wfield-hint">— pode ser homebrew!</span></label><input type="text" id="w-raca" list="dl-raca" placeholder="ex: Aasimar, Tiefling..." autocomplete="off"></div>
           </div>
           <div class="wrow">
             <div class="wfield"><label>Antecedente</label><input type="text" id="w-antecedente" list="dl-antecedente" placeholder="ex: Soldado, Haunted One..." autocomplete="off"></div>
-            <div class="wfield"><label>Alinhamento</label><input type="text" id="w-alinhamento" list="dl-alinhamento" placeholder="ex: Leal Bom..." autocomplete="off"></div>
+          <div class="wfield">
+            <label>Alinhamento</label>
+            <div class="w-alin-widget">
+              <div class="w-alin-nome" id="w-alinhamento-nome">Neutro</div>
+              <div class="w-alin-eixo">
+                <div class="w-alin-labels"><span class="w-alin-leal">Leal</span><span class="w-alin-caotico">Caótico</span></div>
+                <div class="w-alin-track">
+                  <input type="range" class="w-alin-slider" id="w-alinhamento-lc" min="-100" max="100" value="0" step="20" oninput="atualizarAlinhamentoWizard()">
+                  <div class="w-alin-ticks"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                </div>
+              </div>
+              <div class="w-alin-eixo">
+                <div class="w-alin-labels"><span class="w-alin-bom">Bom</span><span class="w-alin-mau">Mau</span></div>
+                <div class="w-alin-track">
+                  <input type="range" class="w-alin-slider" id="w-alinhamento-bm" min="-100" max="100" value="0" step="20" oninput="atualizarAlinhamentoWizard()">
+                  <div class="w-alin-ticks"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -852,9 +899,12 @@
     ;['w-nome','w-jogador','w-personalidade','w-ideais','w-vinculos','w-falhas'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = ''
     })
-    ;['w-classe','w-raca','w-antecedente','w-alinhamento'].forEach(id => {
+    ;['w-classe','w-raca','w-antecedente'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = ''
     })
+    document.getElementById('w-alinhamento-lc').value = 0
+    document.getElementById('w-alinhamento-bm').value = 0
+    atualizarAlinhamentoWizard()
     document.getElementById('wizard-titulo').textContent = '✦ Criar Novo Personagem'
     document.querySelector('.wizard-head')?.style.setProperty('border-bottom-color', '')
     document.querySelector('.wizard-box')?.style.setProperty('border-color', '')
@@ -911,6 +961,19 @@
 
   function calcMod(v) { return Math.floor((parseInt(v)||10 - 10) / 2) }
   function fmtMod(n)  { return (n >= 0 ? '+' : '') + n }
+
+  function nomeAlinhamentoWizard(lc, bm) {
+    const eixoLC = lc < -33 ? 'Leal' : lc > 33 ? 'Caótico' : 'Neutro'
+    const eixoBM = bm < -33 ? 'Bom' : bm > 33 ? 'Mau' : 'Neutro'
+    if (eixoLC === 'Neutro' && eixoBM === 'Neutro') return 'Neutro'
+    return eixoLC + ' ' + eixoBM
+  }
+
+  function atualizarAlinhamentoWizard() {
+    const lc = parseInt(document.getElementById('w-alinhamento-lc').value) || 0
+    const bm = parseInt(document.getElementById('w-alinhamento-bm').value) || 0
+    document.getElementById('w-alinhamento-nome').textContent = nomeAlinhamentoWizard(lc, bm)
+  }
 
   function updateAttrMod(input, modId) {
     const el = document.getElementById(modId); if (!el) return
@@ -976,7 +1039,7 @@
     const classe    = Object.keys(CLASSES_DATA).find(k => k.toLowerCase() === rawClasse.toLowerCase()) || rawClasse
     const raca      = document.getElementById('w-raca').value
     const ante      = document.getElementById('w-antecedente').value
-    const ali       = document.getElementById('w-alinhamento').value
+    const ali       = { lc: parseInt(document.getElementById('w-alinhamento-lc').value) || 0, bm: parseInt(document.getElementById('w-alinhamento-bm').value) || 0 }
     const cd        = CLASSES_DATA[classe] || { hd:8, saves:[], n:2 }
     const rd        = RACAS_DATA[raca] || { speed:'9m', dark:false }
 
@@ -999,7 +1062,7 @@
     })
 
     const ficha = {
-      nome, jogador, classe, nivel:'1', raca, antecedente: ante, alinhamento: ali,
+      nome, jogador, classe, nivel:'1', raca, antecedente: ante, alinhamentoLC: ali.lc, alinhamentoBM: ali.bm,
       atributos, saves, pericias,
       pvMax: String(pvMax), pvAtual: String(pvMax), pvTemp:'0',
       dadoVida:'d' + cd.hd, dadoVida2:'1',
