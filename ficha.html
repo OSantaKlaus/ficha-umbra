@@ -200,6 +200,17 @@
             </div>
           </div>
 
+          <div class="big-num" style="margin-bottom:0.75rem;">
+            <label>BÔNUS DE DEFESA (CA Reformulada)</label>
+            <select id="ca-bonus-classe" class="arm-select" style="width:100%;margin-top:4px;" onchange="calcularCA()">
+              <option value="nenhum">Nenhum</option>
+              <option value="guerreiro">Guerreiro — bônus de proficiência completo</option>
+              <option value="meio">Paladino / Patrulheiro / Ladino — metade do bônus de prof.</option>
+              <option value="barbaro">Bárbaro — mod. Constituição (só sem armadura)</option>
+              <option value="monge">Monge — mod. Sabedoria (só sem armadura)</option>
+            </select>
+          </div>
+
           <!-- DESLOCAMENTO — linha própria, espaço suficiente para os valores -->
           <div class="deslocamento-row">
             <div class="deslocamento-label">DESLOCAMENTO</div>
@@ -495,7 +506,7 @@
               <option value="full">Completo (Bardo, Clérigo, Druida, Feiticeiro, Mago)</option>
               <option value="half">Metade (Paladino, Patrulheiro)</option>
               <option value="third">Terço (Cavaleiro Arcano, Trapaceiro Arcano)</option>
-              <option value="artificer">Artificer (homebrew)</option>
+              <option value="artificer">Artífice (regra da casa)</option>
             </select>
           </div>
           <div class="sp-nivel-conj-wrap">

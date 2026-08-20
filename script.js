@@ -60,24 +60,24 @@ const ATTR_NOMES = {
 // Lista completa de perícias com seu atributo base
 // Para adicionar uma perícia: { nome: 'Nome', attr: 'id-atributo' }
 const PERICIAS = [
-    { nome: 'Acrobacia', attr: 'des', desc: 'Manter o equilíbrio, cair bem, fazer acrobacias e escapar de agarrões.' },
-    { nome: 'Arcanismo', attr: 'int', desc: 'Conhecimento sobre magia, itens mágicos, planos e criaturas arcanas.' },
-    { nome: 'Atletismo', attr: 'for', desc: 'Escalar, saltar, nadar e vencer disputas físicas de força.' },
-    { nome: 'Atuação', attr: 'car', desc: 'Entreter uma plateia com música, dança, atuação ou contação de histórias.' },
-    { nome: 'Enganação', attr: 'car', desc: 'Mentir de forma convincente, blefar ou disfarçar intenções.' },
-    { nome: 'Furtividade', attr: 'des', desc: 'Esconder-se, mover-se em silêncio e passar despercebido.' },
-    { nome: 'História', attr: 'int', desc: 'Lembrar eventos históricos, lendas, reinos e civilizações antigas.' },
-    { nome: 'Intimidação', attr: 'car', desc: 'Influenciar alguém através de ameaças, hostilidade ou violência.' },
-    { nome: 'Intuição', attr: 'sab', desc: 'Perceber mentiras, ler intenções e prever o próximo passo de alguém.' },
-    { nome: 'Investigação', attr: 'int', desc: 'Analisar pistas, deduzir conclusões e encontrar detalhes escondidos.' },
-    { nome: 'Lidar c/ Animais', attr: 'sab', desc: 'Acalmar, treinar ou entender o comportamento de um animal.' },
-    { nome: 'Medicina', attr: 'sab', desc: 'Estabilizar um moribundo, diagnosticar doenças e identificar causa de morte.' },
-    { nome: 'Natureza', attr: 'int', desc: 'Conhecimento sobre terrenos, plantas, animais e ciclos naturais.' },
-    { nome: 'Percepção', attr: 'sab', desc: 'Notar detalhes, ouvir sons distantes ou detectar algo escondido.' },
-    { nome: 'Persuasão', attr: 'car', desc: 'Convencer alguém através de tato, boas maneiras ou apelos sinceros.' },
-    { nome: 'Prestidigitação', attr: 'des', desc: 'Truques manuais, punga, plantar objetos e outras manobras sutis.' },
-    { nome: 'Religião', attr: 'int', desc: 'Conhecimento sobre deuses, ritos, símbolos sagrados e organizações religiosas.' },
-    { nome: 'Sobrevivência', attr: 'sab', desc: 'Rastrear, caçar, prever o clima e evitar perigos naturais.' },
+    { nome: 'Acrobacia', attr: 'des', desc: 'Equilíbrio e acrobacias.' },
+    { nome: 'Arcanismo', attr: 'int', desc: 'Conhecimento sobre magia.' },
+    { nome: 'Atletismo', attr: 'for', desc: 'Força física, escalar e nadar.' },
+    { nome: 'Atuação', attr: 'car', desc: 'Entreter uma plateia.' },
+    { nome: 'Enganação', attr: 'car', desc: 'Mentir de forma convincente.' },
+    { nome: 'Furtividade', attr: 'des', desc: 'Mover-se sem ser notado.' },
+    { nome: 'História', attr: 'int', desc: 'Lembrar fatos e lendas.' },
+    { nome: 'Intimidação', attr: 'car', desc: 'Ameaçar ou impor medo.' },
+    { nome: 'Intuição', attr: 'sab', desc: 'Perceber mentiras e intenções.' },
+    { nome: 'Investigação', attr: 'int', desc: 'Analisar pistas e deduzir.' },
+    { nome: 'Lidar c/ Animais', attr: 'sab', desc: 'Acalmar ou treinar animais.' },
+    { nome: 'Medicina', attr: 'sab', desc: 'Curar e diagnosticar ferimentos.' },
+    { nome: 'Natureza', attr: 'int', desc: 'Conhecimento sobre a natureza.' },
+    { nome: 'Percepção', attr: 'sab', desc: 'Notar detalhes ao redor.' },
+    { nome: 'Persuasão', attr: 'car', desc: 'Convencer com boas palavras.' },
+    { nome: 'Prestidigitação', attr: 'des', desc: 'Truques manuais e punga.' },
+    { nome: 'Religião', attr: 'int', desc: 'Conhecimento sobre deuses e ritos.' },
+    { nome: 'Sobrevivência', attr: 'sab', desc: 'Rastrear e sobreviver na natureza.' },
 ]
 
 /* ============================================================
@@ -250,19 +250,16 @@ function sincronizarDadosVida() {
       proficiência mudam.
 ============================================================ */
 
-// Bônus de CA por classe (CA Reformulada). Detecta a classe por
-// substring no campo de texto livre "classe" (cobre multiclasse
-// simples — em caso de duas classes bonificadas, usa a primeira
-// encontrada nesta ordem).
+// Bônus de CA por classe (CA Reformulada) — escolhido explicitamente pelo
+// campo "Bônus de Defesa", já que o texto livre de Classe pode ser
+// multiclasse, homebrew, etc.
 function bonusClasseCA(temArmadura) {
-    const c = gV('classe').toLowerCase()
+    const escolha = gV('ca-bonus-classe')
     const prof = gP()
-    if (c.includes('guerreiro')) return prof
-    if (c.includes('bárbaro') || c.includes('barbaro')) return temArmadura ? 0 : calcMod(gA('con'))
-    if (c.includes('monge')) return temArmadura ? 0 : calcMod(gA('sab'))
-    if (c.includes('paladino')) return Math.floor(prof / 2)
-    if (c.includes('patrulheiro')) return Math.floor(prof / 2)
-    if (c.includes('ladino')) return Math.floor(prof / 2)
+    if (escolha === 'guerreiro') return prof
+    if (escolha === 'barbaro') return temArmadura ? 0 : calcMod(gA('con'))
+    if (escolha === 'monge') return temArmadura ? 0 : calcMod(gA('sab'))
+    if (escolha === 'meio') return Math.floor(prof / 2)
     return 0
 }
 
@@ -473,10 +470,10 @@ function renderSpellSlots(slots) {
 function addAtaqueRow(nome = '', atk = '', dano = '', tipo = '', notas = '') {
     const tr = document.createElement('tr')
     tr.innerHTML = `
-    <td style="width:22%"><input type="text" value="${nome}" placeholder="Espada Longa"></td>
-    <td style="width:13%"><input type="text" value="${atk}" placeholder="+5" style="text-align:center;"></td>
-    <td style="width:20%"><input type="text" value="${dano}" placeholder="1d8+3"></td>
-    <td style="width:16%"><input type="text" value="${tipo}" placeholder="Cortante"></td>
+    <td style="width:22%"><input type="text" value="${nome}"></td>
+    <td style="width:13%"><input type="text" value="${atk}" style="text-align:center;"></td>
+    <td style="width:20%"><input type="text" value="${dano}"></td>
+    <td style="width:16%"><input type="text" value="${tipo}"></td>
     <td style="width:8%;text-align:center;">
         <button class="btn-rolar-ataque" onclick="rolarAtaque(this)" title="Rolar ataque e dano">⚔</button>
     </td>
@@ -877,6 +874,7 @@ function salvar() {
         armTipo: gV('arm-tipo'),
         armRD: gV('arm-rd'),
         armTracos: gV('arm-tracos'),
+        caBonusClasse: gV('ca-bonus-classe'),
         escudo: g('escudo')?.checked || false,
         armBonus: gV('arm-bonus'),
 
@@ -1026,6 +1024,7 @@ function carregar() {
         // deixa como "personalizada" com RD 0 pro jogador ajustar.
         sV('arm-tipo', 'custom'); sV('arm-rd', 0)
     }
+    if (d.caBonusClasse) sV('ca-bonus-classe', d.caBonusClasse)
     sC('escudo', d.escudo); sV('arm-bonus', d.armBonus)
 
     // PV
