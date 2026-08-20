@@ -73,7 +73,7 @@
     --con-color: #d07830;
     --int-color: #3878c8;
     --sab-color: #8838c8;
-    --car-color: #c8a020;
+    --car-color: #e8c020;
 
     /* PV — cores auxiliares (usadas nos estados baixo/crítico) */
     --pv-bar-color: #185818;
@@ -1177,7 +1177,7 @@ body {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
     color: var(--ink-light);
     line-height: 1.4;
     padding: 0 10px;
