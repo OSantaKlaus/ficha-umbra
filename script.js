@@ -158,6 +158,8 @@ function atualizarAlinhamento() {
 ============================================================ */
 
 function atualizarTudo() {
+    sincronizarProfNivel()  // nível → proficiência automático — roda primeiro, já que
+                             // perícias, testes de resistência e CA dependem dela
     const prof = gP()
 
     // Atualiza os modificadores de todos os atributos
@@ -198,7 +200,6 @@ function atualizarTudo() {
 
     calcularCA()
     atualizarPVBar()
-    sincronizarProfNivel()  // nível → proficiência automático
     // Atualiza pontos de magia se o painel estiver ativo
     if (g('spell-points-panel')?.style.display !== 'none') atualizarSpellPoints()
 }
