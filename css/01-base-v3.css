@@ -1120,6 +1120,11 @@ body {
     text-align: center;
 }
 
+.attacks-table td.atk-roll-cell {
+    padding: 5px 4px;
+    text-align: center;
+}
+
 /* ── 17. PERÍCIAS ── */
 .pericias-panel {
     background: var(--parch);
@@ -1243,7 +1248,9 @@ body {
     padding: 1px 6px;
     border-radius: 10px;
     border: 1px solid;
-    min-width: 28px;
+    width: 32px;
+    box-sizing: border-box;
+    display: inline-block;
     text-align: center;
 }
 

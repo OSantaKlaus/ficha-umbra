@@ -26,3 +26,36 @@
   margin-left: 3px;
 }
 .btn-reset-esperanca:hover { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════
+   HABILIDADES & RECURSOS — grupos unificados por Origem
+═══════════════════════════════════════════════════════════════ */
+
+.hab-grupo { margin-bottom: 1.1rem; }
+.hab-grupo:last-child { margin-bottom: 0; }
+
+.hab-grupo-titulo {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding-bottom: 4px;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px dashed rgba(var(--gold-rgb, 160,100,20), 0.3);
+}
+
+.hab-slot > .exp-card { margin-bottom: 0.6rem; }
+.rec-slot { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.recurso-origem-select {
+  flex-shrink: 0;
+  background: var(--parch-mid);
+  border: 1px solid rgba(var(--gold-rgb, 160,100,20), 0.25);
+  border-radius: 5px;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+  padding: 2px 4px;
+  cursor: pointer;
+}
