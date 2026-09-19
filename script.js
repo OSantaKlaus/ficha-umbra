@@ -475,7 +475,7 @@ function addAtaqueRow(nome = '', atk = '', dano = '', tipo = '', notas = '') {
     <td style="width:13%"><input type="text" value="${atk}" style="text-align:center;"></td>
     <td style="width:20%"><input type="text" value="${dano}"></td>
     <td style="width:16%"><input type="text" value="${tipo}"></td>
-    <td style="width:8%;text-align:center;">
+    <td class="atk-roll-cell" style="width:8%;">
         <button class="btn-rolar-ataque" onclick="rolarAtaque(this)" title="Rolar ataque e dano">⚔</button>
     </td>
     <td class="rm"><button class="btn-remove" onclick="this.closest('tr').remove()" title="Remover ataque">✕</button></td>`
@@ -579,6 +579,8 @@ function addHabilidade(data = {}) {
     const div = document.createElement('div')
     div.className = 'exp-card'
     div.id = id
+    const origem = ['raca', 'classe', 'outras'].includes(data.origem) ? data.origem : 'classe'
+    div.dataset.origem = origem
 
     const cargas = parseInt(data.cargas) || 0
     const usadas = parseInt(data.cargasUsadas) || 0
@@ -593,10 +595,18 @@ function addHabilidade(data = {}) {
         class="exp-title-input" onclick="event.stopPropagation()">
       ${cargasBadge}
       <span class="exp-arrow" id="arr-${id}">▼</span>
-      <button class="btn-remove" onclick="event.stopPropagation();document.getElementById('${id}').remove()" title="Remover">✕</button>
+      <button class="btn-remove" onclick="event.stopPropagation();document.getElementById('${id}').remove();atualizarGruposVazios()" title="Remover">✕</button>
     </div>
     <div class="exp-body" id="body-${id}">
       <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:8px;align-items:flex-end;">
+        <div class="card-field">
+          <label>ORIGEM</label>
+          <select class="exp-origem-select" onchange="moverHabilidadeOrigem('${id}', this.value)">
+            <option value="raca" ${origem === 'raca' ? 'selected' : ''}>Raça</option>
+            <option value="classe" ${origem === 'classe' ? 'selected' : ''}>Classe</option>
+            <option value="outras" ${origem === 'outras' ? 'selected' : ''}>Outras</option>
+          </select>
+        </div>
         <div class="card-field">
           <label>CARGAS TOTAIS</label>
           <input type="number" min="0" value="${cargas}" oninput="atualizarCargasBadge('${id}')">
@@ -607,9 +617,9 @@ function addHabilidade(data = {}) {
         </div>
         <div class="card-field">
           <label>RECUPERA POR</label>
-          <select>
-            <option ${(data.recupera || '') === 'Descanso Curto' ? 'selected' : ''}>Descanso Curto</option>
-            <option ${(data.recupera || '') === 'Descanso Longo' ? 'selected' : ''}>Descanso Longo</option>
+          <select class="exp-recupera-select">
+            <option ${['Descanso Curto','Folga'].includes(data.recupera) ? 'selected' : ''}>Folga</option>
+            <option ${['Descanso Longo','Repouso'].includes(data.recupera) ? 'selected' : ''}>Repouso</option>
             <option ${(data.recupera || '') === 'Ao Amanhecer' ? 'selected' : ''}>Ao Amanhecer</option>
             <option ${(data.recupera || 'N/A') === 'N/A' ? 'selected' : ''}>N/A</option>
           </select>
@@ -618,7 +628,31 @@ function addHabilidade(data = {}) {
       <span class="card-sublabel">DESCRIÇÃO</span>
       <textarea class="note" style="min-height:60px;margin-top:4px;">${data.desc || ''}</textarea>
     </div>`
-    g('habilidades-lista').appendChild(div)
+    g('hab-slot-' + origem).appendChild(div)
+    atualizarGruposVazios()
+}
+
+// Move o card de habilidade pro slot do grupo (Raça/Classe/Outras) escolhido
+function moverHabilidadeOrigem(id, novaOrigem) {
+    const card = g(id)
+    const destino = g('hab-slot-' + novaOrigem)
+    if (!card || !destino) return
+    card.dataset.origem = novaOrigem
+    destino.appendChild(card)
+    atualizarGruposVazios()
+    salvar()
+}
+
+// Esconde grupos (Raça/Classe/Outras) que não têm nenhuma habilidade nem recurso
+function atualizarGruposVazios() {
+    ;['raca', 'classe', 'outras'].forEach(o => {
+        const grupo = g('grupo-' + o)
+        const habSlot = g('hab-slot-' + o)
+        const recSlot = g('rec-slot-' + o)
+        if (!grupo) return
+        const vazio = (!habSlot || habSlot.children.length === 0) && (!recSlot || recSlot.children.length === 0)
+        grupo.style.display = vazio ? 'none' : ''
+    })
 }
 
 function atualizarCargasBadge(id) {
@@ -804,12 +838,13 @@ window.addEventListener('load', () => {
 
 // Coleta os dados de todas as habilidades
 function coletarHabilidades() {
-    return Array.from(document.querySelectorAll('#habilidades-lista .exp-card')).map(c => ({
+    return Array.from(document.querySelectorAll('#tab-habilidades .exp-card')).map(c => ({
         titulo: c.querySelector('.exp-title-input').value,
         cargas: c.querySelectorAll('input[type=number]')[0]?.value || 0,
         cargasUsadas: c.querySelectorAll('input[type=number]')[1]?.value || 0,
-        recupera: c.querySelector('select')?.value || 'N/A',
+        recupera: c.querySelector('.exp-recupera-select')?.value || 'N/A',
         desc: c.querySelector('textarea')?.value || '',
+        origem: c.dataset.origem || 'classe',
     }))
 }
 
@@ -1223,7 +1258,7 @@ function gastarPontosParaEspaco(n) {
     if (n >= 6) {
         const jaUsado = ls.get('sp-alto-' + n) === 'true'
         if (jaUsado) {
-            alert(`Você já criou um espaço de nível ${n} neste dia. Faça um Descanso Longo para recuperá-lo.`)
+            alert(`Você já criou um espaço de nível ${n} neste dia. Faça um Repouso para recuperá-lo.`)
             return
         }
         ls.set('sp-alto-' + n, 'true')
@@ -1487,7 +1522,7 @@ window.onload = function () {
         if (!document.querySelector('#mun-body tr')) { addMunicaoRow() }
     } catch(e) {}
     try {
-        if (!document.querySelector('#habilidades-lista .exp-card')) { addHabilidade() }
+        if (!document.querySelector('#tab-habilidades .exp-card')) { addHabilidade() }
     } catch(e) { console.warn('addHabilidade:', e) }
 
     try { renderSpellSlotsUsados() } catch(e) {}
@@ -2272,6 +2307,21 @@ function setDescansoTipo(tipo, btn) {
     if (res) res.textContent = ''
 }
 
+// Zera as cargas usadas de habilidades cujo "Recupera por" bate com os tipos passados
+// (aceita tanto a nomenclatura nova quanto a antiga, pra não perder fichas já salvas)
+function restaurarHabilidadesPorDescanso(tiposNovos) {
+    const equivalencias = { 'Folga': 'Descanso Curto', 'Repouso': 'Descanso Longo' }
+    const aceitos = tiposNovos.concat(tiposNovos.map(t => equivalencias[t]).filter(Boolean))
+    document.querySelectorAll('#tab-habilidades .exp-card').forEach(card => {
+        const recarga = card.querySelector('.exp-body select')?.value || ''
+        if (aceitos.includes(recarga)) {
+            const usadas = card.querySelectorAll('.exp-body input[type=number]')[1]
+            if (usadas) usadas.value = 0
+            atualizarCargasBadge(card.id)
+        }
+    })
+}
+
 function aplicarDescanso() {
     const cond = parseInt(gV('descanso-condicao'))
     const max = Math.max(1, gN('pv-max'))
@@ -2296,6 +2346,7 @@ function aplicarDescanso() {
         cur = Math.min(max, cur + total)
         const pvEl = g('pv-atual'); if (pvEl) pvEl.value = cur
         const dvrEl = g('dado-vida-rest'); if (dvrEl) dvrEl.value = restantes - qtd
+        restaurarHabilidadesPorDescanso(['Folga'])
         resultado = `Recuperou ${total} PV (dados: ${rolls.join(', ')}). Restam ${restantes - qtd} dado(s) de vida.`
     } else {
         if (cond <= -1) {
@@ -2308,19 +2359,35 @@ function aplicarDescanso() {
         }
         const pvEl = g('pv-atual'); if (pvEl) pvEl.value = cur
 
+        const tempEl = g('pv-temp')
+        if (tempEl) tempEl.value = 0
         if (cond === 1 || cond === 2) {
             const lados = parseInt((gV('dado-vida').match(/\d+/) || [8])[0]) || 8
             const tempGanho = cond === 1 ? lados : 15
-            const tempEl = g('pv-temp')
-            if (tempEl) tempEl.value = Math.max(gN('pv-temp'), tempGanho)
+            if (tempEl) tempEl.value = tempGanho
             resultado += ` +${tempGanho} PV temporário.`
         }
 
-        // Repouso recupera todos os slots de magia
+        // Recupera metade dos dados de vida (mín. 1)
+        const dadoTotal = gN('dado-vida-total')
+        const dadoRest = gN('dado-vida-rest')
+        const dvrEl = g('dado-vida-rest')
+        if (dvrEl && dadoTotal > 0) {
+            const recuperaDV = Math.max(1, Math.floor(dadoTotal / 2))
+            dvrEl.value = Math.min(dadoTotal, dadoRest + recuperaDV)
+        }
+
+        // Limpa testes contra a morte
+        document.querySelectorAll('.death-check').forEach(cb => cb.checked = false)
+
+        // Repouso recupera todos os slots de magia (modo regular + modo pool de pontos)
         try {
             for (let n = 1; n <= 9; n++) ls.set('slot-usado-' + n, 0)
             renderSpellSlotsUsados()
+            if (g('spell-points-panel')?.style.display !== 'none') descansarLongoSP()
         } catch (e) {}
+
+        restaurarHabilidadesPorDescanso(['Folga', 'Repouso', 'Ao Amanhecer'])
         resultado += ' Feitiços recuperados.'
     }
 
@@ -2520,72 +2587,8 @@ function usarModNoRolador(attr) {
 
 /* ============================================================
    DESCANSOS — Curto e Longo
+   (substituído pelo painel flutuante "Descanso" — ver aplicarDescanso())
 ============================================================ */
-function descanso(tipo) {
-    const nome = document.getElementById('nome-personagem')?.textContent?.trim() || 'o personagem'
-
-    if (tipo === 'curto') {
-        if (!confirm(`Descanso Curto para ${nome}?\n\n• Recursos de "descanso curto" restaurados\n• Use seus Dados de Vida para recuperar PV manualmente`)) return
-
-        // Descanso Curto NÃO recupera dados de vida automaticamente.
-        // O jogador deve gastar dados de vida manualmente para recuperar PV.
-        // (Apenas restauramos recursos de classe aqui.)
-        // Restaura habilidades com recarga "Descanso Curto"
-        document.querySelectorAll('#habilidades-lista .exp-card').forEach(card => {
-            const recarga = card.querySelector('.exp-body select')?.value || ''
-            if (recarga === 'Descanso Curto') {
-                const usadas = card.querySelectorAll('.exp-body input[type=number]')[1]
-                if (usadas) usadas.value = 0
-                atualizarCargasBadge(card.id)
-            }
-        })
-
-        mostrarStatusSalvo('☽ Descanso Curto realizado!')
-        salvar()
-
-    } else {
-        if (!confirm(`Descanso Longo para ${nome}?\n\n• PV restaurado ao máximo\n• Metade dos Dados de Vida recuperados (mín. 1)\n• Slots de magia restaurados\n• Testes contra a morte limpos\n• Todos os recursos restaurados`)) return
-
-        // Restaura PV
-        const pvMax = document.getElementById('pv-max')
-        const pvAtual = document.getElementById('pv-atual')
-        if (pvMax && pvAtual) pvAtual.value = pvMax.value
-        const pvTemp = document.getElementById('pv-temp')
-        if (pvTemp) pvTemp.value = 0
-        atualizarPVBar()
-
-        // Restaura dados de vida: recupera metade do total (mín. 1), regra D&D 5e
-        const dadoTotal = document.getElementById('dado-vida-total')
-        const dadoRest  = document.getElementById('dado-vida-rest')
-        if (dadoTotal && dadoRest) {
-            const total = parseInt(dadoTotal.value) || 1
-            const atual = parseInt(dadoRest.value)  || 0
-            const recupera = Math.max(1, Math.floor(total / 2))
-            dadoRest.value = Math.min(total, atual + recupera)
-        }
-
-        // Limpa testes contra a morte
-        document.querySelectorAll('.death-check').forEach(cb => cb.checked = false)
-
-        // Restaura slots de magia
-        for (let n = 1; n <= 9; n++) ls.del('slot-usado-' + n)
-        renderSpellSlotsUsados()
-        descansarLongoSP()
-
-        // Restaura todas as habilidades com carga (Descanso Curto, Longo ou Ao Amanhecer)
-        document.querySelectorAll('#habilidades-lista .exp-card').forEach(card => {
-            const recarga = card.querySelector('.exp-body select')?.value || ''
-            if (recarga === 'Descanso Curto' || recarga === 'Descanso Longo' || recarga === 'Ao Amanhecer') {
-                const usadas = card.querySelectorAll('.exp-body input[type=number]')[1]
-                if (usadas) usadas.value = 0
-                atualizarCargasBadge(card.id)
-            }
-        })
-
-        mostrarStatusSalvo('☀ Descanso Longo realizado!')
-        salvar()
-    }
-}
 
 /* ============================================================
    PERSISTÊNCIA DO HISTÓRICO DE DADOS
@@ -2780,17 +2783,21 @@ const RECURSOS_PRESETS = {
 }
 
 function renderRecursos() {
-    const el = document.getElementById('recursos-lista')
-    if (!el) return
-    if (!_recursos.length) {
-        el.innerHTML = '<p class="recursos-empty">Nenhum recurso adicionado. Use os atalhos ou crie um personalizado.</p>'
-        return
-    }
-    el.innerHTML = _recursos.map(r => `
+    ;['raca', 'classe', 'outras'].forEach(o => {
+        const el = document.getElementById('rec-slot-' + o)
+        if (!el) return
+        const itens = _recursos.filter(r => (r.origem || 'classe') === o)
+        el.innerHTML = itens.map(r => `
         <div class="recurso-item" id="ri-${r.id}">
             <div class="recurso-topo">
                 <input class="recurso-nome-input" value="${r.nome}"
                     onchange="_recursos.find(x=>x.id==='${r.id}').nome=this.value;salvar()">
+                <select class="recurso-origem-select" title="Origem"
+                    onchange="_recursos.find(x=>x.id==='${r.id}').origem=this.value;renderRecursos();salvar()">
+                    <option value="raca" ${(r.origem||'classe')==='raca'?'selected':''}>Raça</option>
+                    <option value="classe" ${(r.origem||'classe')==='classe'?'selected':''}>Classe</option>
+                    <option value="outras" ${(r.origem||'classe')==='outras'?'selected':''}>Outras</option>
+                </select>
                 <button class="recurso-del" onclick="removerRecurso('${r.id}')" title="Remover">✕</button>
             </div>
             <div class="recurso-usos">
@@ -2833,6 +2840,8 @@ function renderRecursos() {
                     onchange="_recursos.find(x=>x.id==='${r.id}').desc=this.value;salvar()">${r.desc || ''}</textarea>
             </div>
         </div>`).join('')
+    })
+    atualizarGruposVazios()
 }
 
 function addRecurso(preset = null) {
@@ -3686,7 +3695,7 @@ window.salvar = function() {
             const lista   = card.parentNode
             const index   = Array.from(lista.children).indexOf(card)
             const clone   = card.cloneNode(true)
-            const isHab   = !!card.closest('#habilidades-lista')
+            const isHab   = !!card.closest('#tab-habilidades')
             const isTruq  = !!card.closest('#truques-lista')
             const msg     = isHab ? 'Habilidade removida' : isTruq ? 'Truque removido' : 'Magia removida'
 

@@ -5,8 +5,9 @@ body.tema-ladino {
         radial-gradient(ellipse at 80% 80%, rgba(180,140,30,0.06) 0%, transparent 55%);
 }
 
-/* ── Inputs: fundo escuro + texto claro ── */
-body.tema-ladino input,
+/* ── Inputs: fundo escuro + texto claro (checkbox/radio ficam de fora,
+     pra não atropelar o estilo customizado de marcado/desmarcado) ── */
+body.tema-ladino input:not([type="checkbox"]):not([type="radio"]),
 body.tema-ladino textarea,
 body.tema-ladino select {
     background: var(--parch-mid) !important;
@@ -307,8 +308,9 @@ body.tema-strahd {
         radial-gradient(ellipse at 70% 90%, rgba(100,0,20,0.10) 0%, transparent 50%);
 }
 
-/* Inputs */
-body.tema-strahd input,
+/* Inputs (checkbox/radio ficam de fora, pra não atropelar o estilo
+   customizado de marcado/desmarcado) */
+body.tema-strahd input:not([type="checkbox"]):not([type="radio"]),
 body.tema-strahd textarea,
 body.tema-strahd select {
     background: var(--parch-mid) !important;

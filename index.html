@@ -393,6 +393,12 @@
     .attr-hint { font-size: 0.9rem; color: var(--ink-muted); font-style: italic; margin-bottom: 0.8rem; }
     .btn-rolar-all { display: block; width: 100%; margin-bottom: 1rem; background: rgba(136,144,192,0.08); border: 1px solid rgba(136,144,192,0.28); border-radius: 8px; color: var(--gold); font-family: var(--font-head); font-size: 0.85rem; letter-spacing: 0.1em; padding: 0.6rem; cursor: pointer; transition: all 0.2s; }
     .btn-rolar-all:hover { background: rgba(136,144,192,0.2); }
+    .filosofia-row { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
+    .filosofia-btn { flex: 1; background: rgba(136,144,192,0.06); border: 1px solid rgba(136,144,192,0.24); border-radius: 8px; padding: 0.55rem 0.4rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .filosofia-btn:hover { background: rgba(136,144,192,0.16); border-color: rgba(136,144,192,0.4); }
+    .filosofia-btn.ativa { background: rgba(136,144,192,0.22); border-color: var(--gold); }
+    .filosofia-nome { font-family: var(--font-head); font-size: 0.8rem; letter-spacing: 0.06em; color: var(--ink); display: block; }
+    .filosofia-valores { font-size: 0.68rem; color: var(--ink-muted); display: block; margin-top: 2px; }
 
     .skills-limit-info { font-family: var(--font-head); font-size: 0.95rem; color: var(--blood-bright); margin-bottom: 0.8rem; }
     .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; max-height: 280px; overflow-y: auto; padding-right: 4px; }
@@ -544,7 +550,7 @@
             <option>Vagabundo</option><option>Custom (Homebrew)</option>
           </datalist>
           <div class="wrow">
-            <div class="wfield"><label>Classe <span class="wfield-hint">— digite ou escolha</span></label><input type="text" id="w-classe" list="dl-classe" placeholder="ex: Paladino, Ardido..." autocomplete="off" oninput="onClasseChange()"></div>
+            <div class="wfield"><label>Classe <span class="wfield-hint">— digite ou escolha</span></label><input type="text" id="w-classe" list="dl-classe" placeholder="ex: Paladino, Artífice..." autocomplete="off" oninput="onClasseChange()"></div>
             <div class="wfield"><label>Raça <span class="wfield-hint">— pode ser homebrew!</span></label><input type="text" id="w-raca" list="dl-raca" placeholder="ex: Aasimar, Tiefling..." autocomplete="off"></div>
           </div>
           <div class="wrow">
@@ -576,6 +582,24 @@
         <div class="wizard-step" id="step-2">
           <div class="step-title">Atributos</div>
           <div class="step-hint">Defina as características físicas e mentais do seu personagem.</div>
+
+          <div class="attr-hint">Escolha uma filosofia de criação:</div>
+          <div class="filosofia-row">
+            <div class="filosofia-btn" id="fil-especialista" onclick="aplicarFilosofia('especialista', this)">
+              <span class="filosofia-nome">Especialista</span>
+              <span class="filosofia-valores">15, 14, 11, 10, 9, 8</span>
+            </div>
+            <div class="filosofia-btn" id="fil-equilibrado" onclick="aplicarFilosofia('equilibrado', this)">
+              <span class="filosofia-nome">Equilibrado</span>
+              <span class="filosofia-valores">13, 13, 12, 11, 10, 8</span>
+            </div>
+            <div class="filosofia-btn" id="fil-faztudo" onclick="aplicarFilosofia('faztudo', this)">
+              <span class="filosofia-nome">Faz-tudo</span>
+              <span class="filosofia-valores">12, 12, 11, 11, 10, 10</span>
+            </div>
+          </div>
+          <div class="attr-hint" style="font-size:0.78rem;">Depois de escolher, é só trocar os números entre os atributos como preferir.</div>
+
           <button class="btn-rolar-all" onclick="rolarTodos()">🎲 Rolar todos (4d6, descarta menor)</button>
           <div class="attr-hint">Ou preencha manualmente abaixo:</div>
           <div class="attr-row">
@@ -914,6 +938,7 @@
       const el = document.getElementById(id)
       if (el) { el.value = v; updateAttrMod(el, id+'-mod') }
     })
+    document.querySelectorAll('.filosofia-btn').forEach(b => b.classList.remove('ativa'))
     document.getElementById('w-saves-preview').innerHTML = '—'
     document.getElementById('w-skills-grid').innerHTML = '<p style="color:var(--ink-muted);font-size:0.85rem;padding:1rem;">Escolha uma classe no Passo 1 primeiro.</p>'
     document.getElementById('w-skills-limit').textContent = 'Escolha suas perícias:'
@@ -994,6 +1019,24 @@
       const el = document.getElementById(id); if (!el) return
       el.value = rolar4d6(); updateAttrMod(el, id+'-mod')
     })
+    document.querySelectorAll('.filosofia-btn').forEach(b => b.classList.remove('ativa'))
+  }
+
+  const FILOSOFIAS = {
+    especialista: [15, 14, 11, 10, 9, 8],
+    equilibrado:  [13, 13, 12, 11, 10, 8],
+    faztudo:      [12, 12, 11, 11, 10, 10],
+  }
+
+  function aplicarFilosofia(nome, btn) {
+    const valores = FILOSOFIAS[nome]
+    if (!valores) return
+    ;['w-for','w-des','w-con','w-int','w-sab','w-car'].forEach((id, i) => {
+      const el = document.getElementById(id); if (!el) return
+      el.value = valores[i]; updateAttrMod(el, id+'-mod')
+    })
+    document.querySelectorAll('.filosofia-btn').forEach(b => b.classList.remove('ativa'))
+    btn.classList.add('ativa')
   }
 
   function onClasseChange() {
@@ -1097,9 +1140,9 @@
     window.location.href = 'ficha.html?id=' + id
   }
 
-  document.getElementById('wizard-overlay').addEventListener('click', function(e) {
-    if (e.target === this) fecharWizard()
-  })
+  // Clique fora do modal NÃO fecha mais o assistente — um formulário de várias
+  // etapas não deveria descartar tudo por um clique acidental na borda. Fechar
+  // agora só acontece pelo botão "Cancelar" (ou "X", se houver).
 
   renderPersonagens()
   </script>

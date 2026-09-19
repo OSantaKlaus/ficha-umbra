@@ -407,16 +407,28 @@
     <div id="tab-habilidades" class="tab-panel">
       <div class="habilidades-grid">
         <div>
-          <div class="section-title">Características & Habilidades</div>
-          <div id="habilidades-lista"></div>
-          <button class="btn-add" onclick="addHabilidade()">+ NOVA HABILIDADE</button>
-          <div class="recursos-faixa">
-            <div class="section-title" style="margin-bottom:0.75rem;">Recursos de Classe</div>
-            <div id="recursos-lista"></div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
-              <button class="btn-add-recurso" style="flex:1;min-width:180px;" onclick="addRecursoPreset()">✦ Recurso da classe</button>
-              <button class="btn-add-recurso" style="flex:1;min-width:180px;" onclick="addRecurso()">+ Personalizado</button>
-            </div>
+          <div class="section-title">Características & Recursos</div>
+
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;">
+            <button class="btn-add" style="flex:1;min-width:160px;" onclick="addHabilidade()">+ NOVA HABILIDADE</button>
+            <button class="btn-add-recurso" style="flex:1;min-width:160px;" onclick="addRecursoPreset()">✦ Recurso da classe</button>
+            <button class="btn-add-recurso" style="flex:1;min-width:160px;" onclick="addRecurso()">+ Recurso personalizado</button>
+          </div>
+
+          <div class="hab-grupo" id="grupo-raca">
+            <div class="hab-grupo-titulo">Raça</div>
+            <div class="hab-slot" id="hab-slot-raca"></div>
+            <div class="rec-slot" id="rec-slot-raca"></div>
+          </div>
+          <div class="hab-grupo" id="grupo-classe">
+            <div class="hab-grupo-titulo">Classe</div>
+            <div class="hab-slot" id="hab-slot-classe"></div>
+            <div class="rec-slot" id="rec-slot-classe"></div>
+          </div>
+          <div class="hab-grupo" id="grupo-outras">
+            <div class="hab-grupo-titulo">Outras</div>
+            <div class="hab-slot" id="hab-slot-outras"></div>
+            <div class="rec-slot" id="rec-slot-outras"></div>
           </div>
         </div>
         <div>
@@ -534,7 +546,7 @@
             </div>
             <button class="sp-adj-btn" onclick="mudarPontosManual(1)">+</button>
           </div>
-          <button class="sp-rest-btn" onclick="descansarLongoSP()" title="Recupera todos os pontos e libera espaços de alto nível">🌙 Descanso Longo</button>
+          <button class="sp-rest-btn" onclick="descansarLongoSP()" title="Recupera todos os pontos e libera espaços de alto nível">🌙 Repouso</button>
         </div>
 
         <!-- Botões de criar espaços -->
@@ -543,7 +555,7 @@
 
         <!-- Restrição de espaços de alto nível (6-9) -->
         <div class="sp-alto-row" id="sp-alto-row">
-          <div class="sp-alto-title">⚠ Espaços de Alto Nível — 1× por Descanso Longo</div>
+          <div class="sp-alto-title">⚠ Espaços de Alto Nível — 1× por Repouso</div>
           <div class="sp-alto-checks" id="sp-alto-checks"></div>
         </div>
 
@@ -741,8 +753,6 @@
     <div class="bottom-controls">
       <button class="btn-undo" id="btn-undo" onclick="undoFicha()" disabled title="Desfazer (Ctrl+Z)">↩ Desfazer</button>
       <button class="btn-redo" id="btn-redo" onclick="redoFicha()" disabled title="Refazer (Ctrl+Y)">↪ Refazer</button>
-      <button class="rest-btn" onclick="descanso('curto')" title="Recupera dados de vida gastos e recursos de descanso curto">☽ Desc. Curto</button>
-      <button class="rest-btn" onclick="descanso('longo')" title="Recupera PV total, slots de magia e recursos de descanso longo">☀ Desc. Longo</button>
       <button class="save-btn" onclick="salvar()" title="Salvar (Ctrl+S)">SALVAR FICHA</button>
     </div>
   </div>
@@ -834,7 +844,7 @@
 
       <div class="dados-mod-wrap" style="margin-top:0.75rem;">
         <label>CONDIÇÃO DO DESCANSO</label>
-        <select id="descanso-condicao" style="width:100%;margin-top:4px;">
+        <select id="descanso-condicao" class="arm-select" style="width:100%;margin-top:4px;">
           <option value="-2">Deplorável (-2 / 25%)</option>
           <option value="-1">Ruim (-1 / metade)</option>
           <option value="0" selected>Comum (+0 / total)</option>
@@ -845,7 +855,7 @@
 
       <div class="dados-mod-wrap" id="descanso-folga-opts" style="margin-top:0.6rem;">
         <label>DADOS DE VIDA A GASTAR (restam <span id="descanso-dv-rest">—</span>)</label>
-        <input type="number" id="descanso-dados-qtd" value="1" min="1" style="width:100%;margin-top:4px;">
+        <input type="number" id="descanso-dados-qtd" value="1" min="1" class="arm-input-num" style="width:100%;margin-top:4px;">
       </div>
 
       <button id="btn-rolar-dado" style="margin-top:0.85rem;" onclick="aplicarDescanso()">💤 APLICAR DESCANSO</button>
